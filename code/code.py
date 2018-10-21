@@ -13,6 +13,9 @@ from matplotlib import pyplot as plt
 from imgrs import get_image as gi
 
 
+input_dir = '../data/'
+output_dir = '../result/'
+
 def kmeans(hist):
     meanc1=0
     meanc2=0
@@ -58,7 +61,7 @@ def kmeans(hist):
 
 
 
-arr_img=gi("ring-4k.jpg")
+arr_img=gi(input_dir+"cameraman.tif")
 
 
 rows,columns = np.shape(arr_img)
