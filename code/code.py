@@ -6,7 +6,6 @@ Created on Sun Oct 21 10:35:27 2018
 """
 
 from PIL import Image
-
 import random
 import numpy as np
 from matplotlib import pyplot as plt
@@ -80,5 +79,5 @@ for i in range(rows):
 
 
 plt.imshow(seg, cmap="gray")
-plt.imsave("kmeans.png",seg, cmap="gray")
+plt.imsave(output_dir+"kmeans.png",seg, cmap="gray")
 plt.show()
