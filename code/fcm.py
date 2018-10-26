@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from imgrs import get_image 
 import random
-
+import cv2
 
 input_dir = '../data/'
 output_dir = '../result/'
@@ -81,28 +81,20 @@ def fcm(pix_range,count,C):
         means_new = calc_mean(clusters,count,V,2)
         error = np.linalg.norm(means_new-means)
         means = means_new 
-        V[np.where(V>0.5)] = 255
-        V[np.where(V<0.5)] = 0
         iters+=1
     return [clusters,V]
     
 
-arr_img=get_image(input_dir+"pepper.png")
+arr_img=get_image(input_dir+"blob.jpg")
 count,bins = np.histogram(arr_img,256,[0,256])
 clusters,V = fcm(bins,count,2) #fcm algorithm for 2 clusters
 
 seg = np.zeros(arr_img.shape)
+ 
 
 for i in range(arr_img.shape[0]):
 	for j in range(arr_img.shape[1]):
-			if (V[arr_img[i][j],0] == 255):
-				seg[i][j] = int(0)
-
-			else:
-				seg[i][j] = int(1)
-
-print(clusters)
-
+			seg[i][j] = arr_img[i][j]*V[arr_img[i][j],1]*255
 plt.imshow(seg, cmap="gray")
 plt.imsave(output_dir+"cmeans.png",seg, cmap="gray")
 plt.show()
