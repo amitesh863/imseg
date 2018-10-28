@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from imgrs import get_image 
 import random
-import cv2
+
 
 input_dir = '../data/'
 output_dir = '../result/'

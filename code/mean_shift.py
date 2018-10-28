@@ -8,6 +8,7 @@ Created on Fri Oct 26 18:52:37 2018
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import time
 
 
 
@@ -16,13 +17,13 @@ output_dir = '../result/'
 
 
 
-def show_results(orig,seg,rad,fname):
+def show_results(orig,seg,rad,kernel,fname):
     plt.figure()
     ax1 =plt.subplot(121)
     ax2 =plt.subplot(122)
     ax1.set_title('Original Image')
     ax1.imshow(orig)
-    ax2.set_title('Result of segmented image with\n Parzen window size ={}'.format(rad))
+    ax2.set_title('Result of segmented image with\n Parzen window size ={} and kernel {}'.format(rad,kernel))
     ax2.imshow(seg)
     seg=Image.fromarray(seg.astype('uint8'))
     seg.save(output_dir+'ms_'+fname,'JPEG')    
@@ -47,7 +48,8 @@ def calc_density_mean(neig,seed,rad):
     weights = np.exp(-1*np.linalg.norm((neig-seed)/rad,axis=1))
     mean = np.array(np.sum(weights[:,None]*neig,axis=0)/np.sum(weights),dtype=np.int64)
     return mean
-    
+
+
 def coalesce_means(means,bandwidth):
     flags = [1 for me in means]
     for i in range(len(means)):
@@ -71,7 +73,7 @@ def coalesce_means(means,bandwidth):
 
 
 #function of kernel density estimation
-def kde(data_arr,mean_indx,rad):
+def kde(data_arr,mean_indx,rad,kernel):
     means = data_arr[mean_indx]
     
     iters=0
@@ -81,7 +83,8 @@ def kde(data_arr,mean_indx,rad):
             mean =means[indx]
             dist = np.linalg.norm(data_arr - mean,axis=1)
             neig = data_arr[np.where(dist < rad)]
-            new_mean = calc_density_mean(neig,mean,rad)
+            if kernel == 'gaussian':    
+                new_mean = calc_density_mean(neig,mean,rad)
             new_means.append(new_mean)
         new_means = np.array(new_means)
         if np.array_equal(new_mean,mean):
@@ -91,39 +94,45 @@ def kde(data_arr,mean_indx,rad):
     return means
 
 
-#reading the image in RGB format
-no_probes = 50
-rad = 80
-fname = 'input2.jpg'
 
-arr_img= np.array(Image.open(input_dir+fname).resize((256,256)))
-#handling grayscale vs color case
-if (len(arr_img.shape) == 2):
-    w,h = arr_img.shape
-    data_arr = arr_img.reshape((w*h,1))
-elif(len(arr_img.shape) == 3):
-    w,h,d = arr_img.shape
-    data_arr = arr_img.reshape((w*h,d))    
-
-#selecting random means given by k
-mean_indx = np.random.choice(data_arr.shape[0],no_probes,replace=True)
-#performing kde for each mean
-kde_means = kde(data_arr,mean_indx,rad)
-#assigning the clusters
-clus_data_arr = assign_cluster(data_arr,kde_means)
-final_means = coalesce_means(kde_means,rad)
-clus_data_arr = assign_cluster(data_arr,final_means)
-
-
-#for each mean and its corresponding cluster
-for k in range(final_means.shape[0]):
-    idx = np.where(clus_data_arr[:,-1] == k)
-    clus_data_arr[idx,:-1]=final_means[k]
+def mean_shift(fname,rad,no_probes=50,kernel='gaussian',get_stat=False):
+    stime = time.time()
+    arr_img= np.array(Image.open(input_dir+fname).resize((256,256)))
     
-
-#showing the final clustered image
-data_arr = clus_data_arr[:,:-1]
-data_arr= data_arr.reshape(arr_img.shape)
-show_results(arr_img,data_arr,rad,fname)
-
-
+    #handling grayscale vs color case
+    if (len(arr_img.shape) == 2):
+        w,h = arr_img.shape
+        data_arr = arr_img.reshape((w*h,1))
+    elif(len(arr_img.shape) == 3):
+        w,h,d = arr_img.shape
+        data_arr = arr_img.reshape((w*h,d))    
+    
+    #selecting random means given by k
+    mean_indx = np.random.choice(data_arr.shape[0],no_probes,replace=True)
+    #performing kde for each mean
+    kde_means = kde(data_arr,mean_indx,rad,kernel)
+    #assigning the clusters
+    clus_data_arr = assign_cluster(data_arr,kde_means)
+    #merging clusters
+    final_means = coalesce_means(kde_means,rad)
+    clus_data_arr = assign_cluster(data_arr,final_means)
+    
+    #for each mean and its corresponding cluster
+    for k in range(final_means.shape[0]):
+        idx = np.where(clus_data_arr[:,-1] == k)
+        clus_data_arr[idx,:-1]=final_means[k]
+        
+    #showing the final clustered image
+    data_arr = clus_data_arr[:,:-1]
+    data_arr= data_arr.reshape(arr_img.shape)
+    etime = time.time()
+    
+    if get_stat:
+        time_taken = etime - stime
+        db_index = 1
+        #code for db index
+        return (time_taken,db_index)
+    else:
+        show_results(arr_img,data_arr,rad,kernel,fname)
+    
+    
