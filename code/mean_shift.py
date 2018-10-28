@@ -8,7 +8,7 @@ Created on Fri Oct 26 18:52:37 2018
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import cdist
+
 
 
 input_dir = '../data/'
@@ -16,6 +16,17 @@ output_dir = '../result/'
 
 
 
+def show_results(orig,seg,rad,fname):
+    plt.figure()
+    ax1 =plt.subplot(121)
+    ax2 =plt.subplot(122)
+    ax1.set_title('Original Image')
+    ax1.imshow(orig)
+    ax2.set_title('Result of segmented image with\n Parzen window size ={}'.format(rad))
+    ax2.imshow(seg)
+    seg=Image.fromarray(seg.astype('uint8'))
+    seg.save(output_dir+'ms_'+fname,'JPEG')    
+    plt.show()
 
 
 def assign_cluster(data_arr,means):
@@ -81,15 +92,11 @@ def kde(data_arr,mean_indx,rad):
 
 
 #reading the image in RGB format
+no_probes = 50
+rad = 80
+fname = 'input2.jpg'
 
-arr_img= np.array(Image.open(input_dir+'input2.jpg').resize((256,256)))
-
-'''
-plt.figure()
-plt.imshow(arr_img)
-plt.show()
-'''
-rad = 7
+arr_img= np.array(Image.open(input_dir+fname).resize((256,256)))
 #handling grayscale vs color case
 if (len(arr_img.shape) == 2):
     w,h = arr_img.shape
@@ -97,8 +104,6 @@ if (len(arr_img.shape) == 2):
 elif(len(arr_img.shape) == 3):
     w,h,d = arr_img.shape
     data_arr = arr_img.reshape((w*h,d))    
-no_probes = 50
-
 
 #selecting random means given by k
 mean_indx = np.random.choice(data_arr.shape[0],no_probes,replace=True)
@@ -119,9 +124,6 @@ for k in range(final_means.shape[0]):
 #showing the final clustered image
 data_arr = clus_data_arr[:,:-1]
 data_arr= data_arr.reshape(arr_img.shape)
-plt.figure()
-plt.imshow(data_arr)
-plt.show()
-
+show_results(arr_img,data_arr,rad,fname)
 
 
