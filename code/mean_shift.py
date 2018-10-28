@@ -17,7 +17,7 @@ output_dir = '../result/'
 
 
 
-def show_results(orig,seg,rad,kernel,fname):
+def show_results_meanshift(orig,seg,rad,kernel,fname):
     plt.figure()
     ax1 =plt.subplot(121)
     ax2 =plt.subplot(122)
@@ -133,6 +133,6 @@ def mean_shift(fname,rad,no_probes=50,kernel='gaussian',get_stat=False):
         #code for db index
         return (time_taken,db_index)
     else:
-        show_results(arr_img,data_arr,rad,kernel,fname)
+        show_results_meanshift(arr_img,data_arr,rad,kernel,fname)
     
     

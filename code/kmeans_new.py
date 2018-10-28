@@ -8,6 +8,7 @@ Created on Tue Oct 23 23:32:53 2018
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import time
 
 
 
@@ -15,6 +16,19 @@ input_dir = '../data/'
 output_dir = '../result/'
 
 
+def show_results_kmeans(orig,seg,K,fname):
+    plt.figure()
+    ax1 =plt.subplot(121)
+    ax2 =plt.subplot(122)
+    ax1.set_title('Original Image')
+    ax1.imshow(orig)
+    ax2.set_title('Result of segmented image with K = {}'.format(K))
+    ax2.imshow(seg)
+    seg=Image.fromarray(seg.astype('uint8'))
+    seg.save(output_dir+'ks_'+fname,'JPEG')    
+    plt.show()
+    
+    
 def assign_cluster(data_arr,mediods):
     #mediods = data_arr[med_indx]
     dists = np.zeros((data_arr.shape[0],len(mediods)))
@@ -54,7 +68,6 @@ def calc_mean(clus_data_arr,means):
     
 
 def k_means(data_arr,k,get_stat=False):
-    
     iters=1
     mean_indx = np.random.choice(data_arr.shape[0],k,replace=False) 
     means = data_arr[mean_indx]
@@ -82,29 +95,36 @@ def k_means(data_arr,k,get_stat=False):
 
 
 
-arr_img= np.array(Image.open(input_dir+'cameraman.tif').resize((256,256)))
 
-#handling grayscale vs color case
-if (len(arr_img.shape) == 2):
-    w,h = arr_img.shape
-    data_arr = arr_img.reshape(w*h,1)
-elif(len(arr_img.shape) == 3):
-    w,h,d = arr_img.shape
-    data_arr = arr_img.reshape((w*h,d))  
 
-clus_data_arr,c,final_means = k_means(data_arr,4,get_stat=True)
-
-#for each mean and its corresponding cluster
-for k in range(final_means.shape[0]):
-    idx = np.where(clus_data_arr[:,-1] == k)
-    clus_data_arr[idx,:-1]=final_means[k]
+def kmeans(fname,K=2,get_stat = False): 
+    stime = time.time()
+    arr_img= np.array(Image.open(input_dir+'cameraman.tif').resize((256,256)))    
+    #handling grayscale vs color case
+    if (len(arr_img.shape) == 2):
+        w,h = arr_img.shape
+        data_arr = arr_img.reshape(w*h,1)
+    elif(len(arr_img.shape) == 3):
+        w,h,d = arr_img.shape
+        data_arr = arr_img.reshape((w*h,d))  
     
-
-#showing the final clustered image
-data_arr = clus_data_arr[:,:-1]
-data_arr= data_arr.reshape(arr_img.shape)
-plt.figure()
-plt.imshow(data_arr)
-plt.show()
-
+    clus_data_arr,c,final_means = k_means(data_arr,K,get_stat=True)
+    
+    #for each mean and its corresponding cluster
+    for k in range(final_means.shape[0]):
+        idx = np.where(clus_data_arr[:,-1] == k)
+        clus_data_arr[idx,:-1]=final_means[k]
+        
+    #showing the final clustered image
+    data_arr = clus_data_arr[:,:-1]
+    data_arr= data_arr.reshape(arr_img.shape)
+    etime = time.time()
+    if get_stat:
+        time_taken = stime-etime
+        db_index = 1
+        sqr_err = 0
+        return (time_taken,db_index,sqr_err)
+    else:    
+        show_results_kmeans(arr_img,data_arr,K,fname)
+    
 
