@@ -7,6 +7,7 @@ Created on Sun Oct 21 16:00:30 2018
 import numpy as np
 from mean_shift import mean_shift
 from kmeans_new import kmeans
+from fcm import fuzzy_cmeans
 
 
 
@@ -40,4 +41,4 @@ for fname in fnames:
         print(time,db_index)
 
 '''
-print(kmeans('Scenery.jpg',5))
+print(fuzzy_cmeans('cameraman.tif',2,get_stat=True))

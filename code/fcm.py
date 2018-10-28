@@ -9,11 +9,26 @@ import numpy as np
 from matplotlib import pyplot as plt
 from imgrs import get_image 
 import random
+from PIL import Image
+import time
 
 
 input_dir = '../data/'
 output_dir = '../result/'
 
+def show_results_fuzzy_cmeans(orig,seg,K,fname):
+    plt.figure()
+    ax1 =plt.subplot(121)
+    ax2 =plt.subplot(122)
+    ax1.set_title('Original Image')
+    ax1.imshow(orig)
+    ax2.set_title('fuzzy cmeans segmented image \nwith K = {}'.format(K))
+    ax2.imshow(seg)
+    seg=Image.fromarray(seg.astype('uint8'))
+    seg.save(output_dir+'cs_'+fname,'JPEG')    
+    plt.show()
+    
+    
 def init_membership_mat(pixel_range,cls_range):
     mat = np.random.random((pixel_range,cls_range))
     rsum = np.sum(mat,axis=1)
@@ -86,21 +101,24 @@ def fcm(pix_range,count,C):
     
 
 
-
-arr_img=get_image(input_dir+"t1.png")
-count,bins = np.histogram(arr_img,256,[0,256])
-clusters,V = fcm(bins,count,2) #fcm algorithm for 2 clusters
-
-seg = np.zeros(arr_img.shape)
- 
-
-for i in range(arr_img.shape[0]):
-	for j in range(arr_img.shape[1]):
-			seg[i][j] = arr_img[i][j]*V[arr_img[i][j],1]*255
-plt.imshow(seg, cmap="gray")
-plt.imsave(output_dir+"cmeans.png",seg, cmap="gray")
-plt.show()
-
+def fuzzy_cmeans(fname,K=2,get_stat = False):   
+    stime = time.time()
+    arr_img=get_image(input_dir+fname)
+    count,bins = np.histogram(arr_img,256,[0,256])
+    clusters,V = fcm(bins,count,K) #fcm algorithm for 2 clusters
+    seg = np.zeros(arr_img.shape)
+    for i in range(arr_img.shape[0]):
+    	for j in range(arr_img.shape[1]):
+    			seg[i][j] = arr_img[i][j]*V[arr_img[i][j],1]*255
+    etime = time.time()
+    if get_stat:
+        time_taken = etime-stime
+        db_index =1 
+        sqr_err = 1
+        return (time_taken,db_index,sqr_err)
+    else:
+        show_results_fuzzy_cmeans(arr_img,seg,K,fname)
+    
 
 
     

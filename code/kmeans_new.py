@@ -99,7 +99,7 @@ def k_means(data_arr,k,get_stat=False):
 
 def kmeans(fname,K=2,get_stat = False): 
     stime = time.time()
-    arr_img= np.array(Image.open(input_dir+fname).resize((256,256)))    
+    arr_img= np.array(Image.open(input_dir+fname).convert('L').resize((256,256)))    
     #handling grayscale vs color case
     if (len(arr_img.shape) == 2):
         w,h = arr_img.shape
