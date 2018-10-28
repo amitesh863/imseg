@@ -10,9 +10,11 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
-
 input_dir = '../data/'
 output_dir = '../result/'
+
+
+
 
 def assign_cluster(data_arr,means):
     #mediods = data_arr[med_indx]
@@ -57,37 +59,35 @@ def kde(data_arr,mean_indx,rad):
 
 #reading the image in RGB format
 
-arr_img= np.array(Image.open(input_dir+'input5.jpg').resize((256,256)))
+arr_img= np.array(Image.open(input_dir+'cameraman.tif').resize((256,256)))
+'''
 plt.figure()
 plt.imshow(arr_img)
 plt.show()
-
-#creting position x,y co-ordinates to the image
-pos = np.array([(i,j) for i in range(arr_img.shape[0]) for j in range(arr_img.shape[1]) ])
+'''
 
 #handling grayscale vs color case
 if (len(arr_img.shape) == 2):
     w,h = arr_img.shape
-    data_arr = np.concatenate((arr_img.reshape(w*h,1),pos),axis=1)
+    data_arr = arr_img.reshape((w*h,1))
 elif(len(arr_img.shape) == 3):
     w,h,d = arr_img.shape
-    data_arr = np.concatenate((arr_img.reshape((w*h,d)),pos),axis=1)    
+    data_arr = arr_img.reshape((w*h,d))    
 
 
 #selecting random means given by k
-mean_indx = np.random.choice(data_arr.shape[0],2,replace=True)
+mean_indx = np.random.choice(data_arr.shape[0],3,replace=True)
 #performing kde for each mean
 final_means = kde(data_arr,mean_indx,3)
 #assigning the clusters
 clus_data_arr = assign_cluster(data_arr,final_means)
-clus_data_arr=np.delete(clus_data_arr,np.s_[-3:-1],axis=1)
 
 
 
 #for each mean and its corresponding cluster
 for k in range(final_means.shape[0]):
     idx = np.where(clus_data_arr[:,-1] == k)
-    clus_data_arr[idx,:-1]=final_means[k][:-2]
+    clus_data_arr[idx,:-1]=final_means[k]
     
 
 #showing the final clustered image
@@ -96,8 +96,6 @@ data_arr= data_arr.reshape(arr_img.shape)
 plt.figure()
 plt.imshow(data_arr)
 plt.show()
-
-
 
 
 
