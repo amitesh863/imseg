@@ -22,7 +22,7 @@ def show_results_kmeans(orig,seg,K,fname):
     ax2 =plt.subplot(122)
     ax1.set_title('Original Image')
     ax1.imshow(orig)
-    ax2.set_title('Result of segmented image with K = {}'.format(K))
+    ax2.set_title('Result of segmented image \nwith K = {}'.format(K))
     ax2.imshow(seg)
     seg=Image.fromarray(seg.astype('uint8'))
     seg.save(output_dir+'ks_'+fname,'JPEG')    
@@ -99,7 +99,7 @@ def k_means(data_arr,k,get_stat=False):
 
 def kmeans(fname,K=2,get_stat = False): 
     stime = time.time()
-    arr_img= np.array(Image.open(input_dir+'cameraman.tif').resize((256,256)))    
+    arr_img= np.array(Image.open(input_dir+fname).resize((256,256)))    
     #handling grayscale vs color case
     if (len(arr_img.shape) == 2):
         w,h = arr_img.shape
@@ -120,7 +120,7 @@ def kmeans(fname,K=2,get_stat = False):
     data_arr= data_arr.reshape(arr_img.shape)
     etime = time.time()
     if get_stat:
-        time_taken = stime-etime
+        time_taken = etime-stime
         db_index = 1
         sqr_err = 0
         return (time_taken,db_index,sqr_err)

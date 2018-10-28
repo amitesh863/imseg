@@ -85,6 +85,8 @@ def fcm(pix_range,count,C):
     return [clusters,V]
     
 
+
+
 arr_img=get_image(input_dir+"t1.png")
 count,bins = np.histogram(arr_img,256,[0,256])
 clusters,V = fcm(bins,count,2) #fcm algorithm for 2 clusters

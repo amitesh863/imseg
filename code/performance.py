@@ -6,6 +6,8 @@ Created on Sun Oct 21 16:00:30 2018
 """
 import numpy as np
 from mean_shift import mean_shift
+from kmeans_new import kmeans
+
 
 
 def mse(imageA, imageB):
@@ -27,7 +29,7 @@ print("Mean Square Error between image obtained by mean shift and cmeans is {}".
 
 
 #Meanshift Profiling
-
+'''
 fnames = ['Scenery.jpg','input2.jpg','input5.jpg']
 radi   =[10,20,30,40]
 
@@ -37,5 +39,5 @@ for fname in fnames:
         time,db_index = mean_shift(fname,rad,get_stat = True)
         print(time,db_index)
 
-
-
+'''
+print(kmeans('Scenery.jpg',5))
