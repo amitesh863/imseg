@@ -30,7 +30,7 @@ print("Mean Square Error between image obtained by mean shift and cmeans is {}".
 
 
 #Meanshift Profiling
-'''
+
 fnames = ['Scenery.jpg','input2.jpg','input5.jpg']
 radi   =[10,20,30,40]
 
@@ -40,5 +40,5 @@ for fname in fnames:
         time,db_index = mean_shift(fname,rad,get_stat = True)
         print(time,db_index)
 
-'''
-print(fuzzy_cmeans('cameraman.tif',2,get_stat=True))
+
+#print(fuzzy_cmeans('cameraman.tif',2,get_stat=True))

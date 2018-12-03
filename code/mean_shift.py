@@ -72,6 +72,15 @@ def coalesce_means(means,bandwidth):
     return converged_means
 
 
+def dbindex(clus_data_arr,means):
+    cost =0
+    for j in range(means.shape[0]): 
+        clus =clus_data_arr[np.where(clus_data_arr[:,-1] == j)][:,:-1]
+        mean=means[j]
+        cost+=np.sum(np.linalg.norm(clus -mean,axis=1))
+    
+    return cost
+           
 #function of kernel density estimation
 def kde(data_arr,mean_indx,rad,kernel):
     means = data_arr[mean_indx]
@@ -116,6 +125,7 @@ def mean_shift(fname,rad,no_probes=50,kernel='gaussian',get_stat=False):
     #merging clusters
     final_means = coalesce_means(kde_means,rad)
     clus_data_arr = assign_cluster(data_arr,final_means)
+    clus_data_arr_orig = assign_cluster(data_arr,final_means)
     
     #for each mean and its corresponding cluster
     for k in range(final_means.shape[0]):
@@ -125,12 +135,15 @@ def mean_shift(fname,rad,no_probes=50,kernel='gaussian',get_stat=False):
     #showing the final clustered image
     data_arr = clus_data_arr[:,:-1]
     data_arr= data_arr.reshape(arr_img.shape)
-    etime = time.time()
     
+    
+    etime = time.time()
     if get_stat:
         time_taken = etime - stime
         db_index = 1
         #code for db index
+        print(clus_data_arr_orig.shape)
+        dbindex(clus_data_arr_orig,final_means)
         return (time_taken,db_index)
     else:
         show_results_meanshift(arr_img,data_arr,rad,kernel,fname)
