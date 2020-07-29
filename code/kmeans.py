@@ -5,7 +5,6 @@ Created on Sun Oct 21 10:35:27 2018
 @author: Amitesh863
 """
 
-from PIL import Image
 import random
 import numpy as np
 from matplotlib import pyplot as plt
@@ -60,7 +59,7 @@ def kmeans(hist):
 
 
 
-arr_img=gi(input_dir+"cameraman.tif")
+arr_img=gi(input_dir+"blob.jpg")
 
 
 rows,columns = np.shape(arr_img)
